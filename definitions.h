@@ -1,26 +1,20 @@
-//
-//  definitions.h
-//  miniSQL
-//
-//  Created by è–›ä¼Ÿ on 2018/6/14.
-//  Copyright Â© 2018å¹´ Will. All rights reserved.
-//
 
 #ifndef definitions_h
 #define definitions_h
 
-//æ¯ä¸ªblockçš„size
+//Ã¿¸öblockµÄsize
 #define BLOCK_SIZE 4096
-//å†…å­˜ä¸­æœ€å¤šçš„blockæ•°é‡
-#define MAX_BLOCK_NUM 40
-//å®šä¹‰blockçš„headerçš„å¤§å°ï¼Œå®é™…å¯ç”¨å®¹é‡ä¸ºBLOCK_SIZE - BLOCK_HEADER
+//ÄÚ´æÖĞ×î¶àµÄblockÊıÁ¿
+#define MAX_BLOCK_NUM 4000
+//¶¨ÒåblockµÄheaderµÄ´óĞ¡£¬Êµ¼Ê¿ÉÓÃÈİÁ¿ÎªBLOCK_SIZE - BLOCK_HEADER
 #define BLOCK_HEADER 80
 
-/* æ–‡ä»¶åå‘½åè§„åˆ™:
-        æ¯ä¸ªç±»å‹æ–‡ä»¶å­˜æ”¾åœ¨å•ç‹¬ä¸€ä¸ªæ–‡ä»¶(catalog, record, index)
-            catalogæ–‡ä»¶ï¼šcatalog_è¡¨å,
-            recordæ–‡ä»¶ï¼š record_è¡¨åï¼Œ
-            indexæ–‡ä»¶:   index_keyå_è¡¨å
+#define RECORD_LENTH 300
+/* ÎÄ¼şÃûÃüÃû¹æÔò:
+        Ã¿¸öÀàĞÍÎÄ¼ş´æ·ÅÔÚµ¥¶ÀÒ»¸öÎÄ¼ş(catalog, record, index)
+            catalogÎÄ¼ş£ºcatalog_±íÃû,
+            recordÎÄ¼ş£º record_±íÃû£¬
+            indexÎÄ¼ş:   index_keyÃû_±íÃû
  */
 
 

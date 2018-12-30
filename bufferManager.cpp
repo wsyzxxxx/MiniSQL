@@ -1,10 +1,3 @@
-//
-//  bufferManager.cpp
-//  miniSQL
-//
-//  Created by è–›ä¼Ÿ on 2018/6/11.
-//  Copyright Â© 2018å¹´ Will. All rights reserved.
-//
 
 #include <iostream>
 #include <cstring>
@@ -14,7 +7,6 @@
 #include "bufferManager.h"
 
 using namespace std;
-
 blockInfo::blockInfo(char* block_content, fileInfo file_info, int block_id)
 {
     belong_to_file = file_info;
@@ -40,8 +32,6 @@ bool blockInfo::isDirty()
 void blockInfo::setPin(bool pinned)
 {
     if (pinned) {
-        if (this->is_pinned)
-            cout << "ERROR: The page has been pinned" << endl;
         this->is_pinned = true;
     }
     else
@@ -71,8 +61,8 @@ bufferManager::~bufferManager()
     
     for (auto index_of_block = block_pool.begin(); index_of_block != block_pool.end(); ) {
         if ((*index_of_block)->isPinned()) {
-            cout << "ERROR: The block is still pinned!" << endl;
-            //MARK: é”™è¯¯å¤„ç†
+            throw string("ERROR: The block is still pinned!");
+            //MARK: ´íÎó´¦Àí
         } else if ((*index_of_block)->isDirty())
             writeBlockBackToDisk(*index_of_block);
         
@@ -80,8 +70,8 @@ bufferManager::~bufferManager()
     }
     
     if (block_pool.size() != 0) {
-        cout << "ERROR: clear vector error!" << endl;
-        //MARK: é”™è¯¯å¤„ç†
+        throw string("ERROR: clear vector error!");
+        //MARK: ´íÎó´¦Àí
     }
 }
 
@@ -89,10 +79,10 @@ void bufferManager::createNewFile(string file_name, int file_type, int record_le
 {
     ofstream new_file;
     new_file.open("./" + file_name, ios::in);
-    //æ£€æŸ¥æ–‡ä»¶æ˜¯å¦å­˜åœ¨
+    //¼ì²éÎÄ¼þÊÇ·ñ´æÔÚ
     if (new_file) {
-        cout << "ERROR: The file has existed!" << endl;
-        //MARK: é”™è¯¯å¤„ç†
+        //throw string("ERROR: The file has existed!");
+        //MARK: ´íÎó´¦Àí
         return;
     } else
         new_file.open("./" + file_name, ios::trunc);
@@ -102,19 +92,6 @@ void bufferManager::createNewFile(string file_name, int file_type, int record_le
 
 void bufferManager::initFileBlock(string file_name, int block_id, int file_type, int record_length)
 {
-//    ofstream new_file;
-//    new_file.open("./" + file_name, ios::out);
-//    new_file.seekp(BLOCK_SIZE * block_id, ios::beg);
-//    //å¡«æ»¡æ–‡ä»¶ä¸€ä¸ªç©ºBLOCKçš„å¤§å°
-//    char temp_str[BLOCK_SIZE];
-//    memset(temp_str, 0, sizeof(temp_str));
-//    new_file.write(temp_str, BLOCK_SIZE);
-//    //å›žåˆ°æ–‡ä»¶å¼€å¤´
-//    new_file.seekp(BLOCK_SIZE * block_id, ios::beg);
-//    //å¯¹åº”fileInfoé‡Œé¢çš„äº”ç±»
-//    new_file << file_type << ' ' << record_length << ' ' << 0 << ' ' << 0 << ' ' << 0 << '\n';
-//    cout << "current pos: " << new_file.tellp() << endl;
-//    new_file.close();
     FILE* new_block_file = fopen(file_name.data(), "r+");
     fseek(new_block_file, BLOCK_SIZE * block_id, SEEK_SET);
     char temp_str[BLOCK_SIZE];
@@ -138,25 +115,25 @@ blockInfo* bufferManager::readBlockIntoMemory(string file_name, int block_id)
     }
     ifstream read_file;
     read_file.open("./" + file_name, ios::in);
-    //åˆ¤æ–­æ–‡ä»¶æ˜¯å¦å­˜åœ¨
+    //ÅÐ¶ÏÎÄ¼þÊÇ·ñ´æÔÚ
     if (!read_file) {
-        cout << "ERROR: The file does not exist!" << endl;
-        //MARK:: é”™è¯¯å¤„ç†
+        throw string("ERROR: The file does not exist!");
+        //MARK:: ´íÎó´¦Àí
     }
-    //è¯»å–blockçš„headerå†…å®¹
+    //¶ÁÈ¡blockµÄheaderÄÚÈÝ
     read_file.seekg(BLOCK_SIZE * block_id, ios::beg);
     int block_type, record_length, block_num, first_deletion_offset, record_num;
     read_file >> block_type >> record_length >> block_num >> first_deletion_offset >> record_num;
     fileInfo read_file_info(block_type, file_name, record_length, block_num, first_deletion_offset, record_num);
-    //è¯»å–è®°å½•å†…å®¹
+    //¶ÁÈ¡¼ÇÂ¼ÄÚÈÝ
     read_file.seekg(BLOCK_SIZE * block_id + BLOCK_HEADER, ios::beg);
     char temp_conent[BLOCK_SIZE - BLOCK_HEADER];
     read_file.read(temp_conent, BLOCK_SIZE - BLOCK_HEADER);
     //read_file >> temp_conent;
     read_file.close();
-    //æž„é€ æ–°çš„blockInfo
+    //¹¹ÔìÐÂµÄblockInfo
     blockInfo* new_block = new blockInfo(temp_conent, read_file_info, block_id);
-    //åŠ å…¥LRUé˜Ÿåˆ—
+    //¼ÓÈëLRU¶ÓÁÐ
     LRUForPutBlock(LRUKey(file_name, block_id), new_block);
     
     return new_block;
@@ -164,30 +141,16 @@ blockInfo* bufferManager::readBlockIntoMemory(string file_name, int block_id)
 
 void bufferManager::writeBlockBackToDisk(blockInfo *block)
 {
-    /*
-    //æ‰“å¼€æ–‡ä»¶
-    string write_file_name = block->belong_to_file.file_name;
-    ofstream write_file;
-    write_file.open("./" + write_file_name, ios::out);
-    //å†™å…¥æ–‡ä»¶ä¿¡æ¯
-    write_file.seekp(BLOCK_SIZE * block->block_id, ios::beg);
-    write_file << block->belong_to_file.file_type << ' ' << block->belong_to_file.record_length << ' ' << block->belong_to_file.block_num << ' ' << block->belong_to_file.first_deletion_offset << ' ' << block->belong_to_file.record_num << '\n';
-    //å†™å…¥æ–‡ä»¶å†…å®¹
-    write_file.seekp(BLOCK_SIZE * block->block_id + BLOCK_HEADER, ios::beg);
-    write_file.write(block->getBlockContent(), BLOCK_SIZE - BLOCK_HEADER);
-    //write_file << block->getBlockContent();
-    write_file.close();
-     */
-    //æ‰“å¼€æ–‡ä»¶
+    //´ò¿ªÎÄ¼þ
     string write_file_name = block->belong_to_file.file_name;
     FILE* new_block_file = fopen(write_file_name.data(), "r+");
     fseek(new_block_file, BLOCK_SIZE * block->block_id, SEEK_SET);
-    //å†™å…¥header
+    //Ð´Èëheader
     char temp_str[BLOCK_SIZE];
     memset(temp_str, 0, sizeof(temp_str));
     sprintf(temp_str, "%d %d %d %d %d\n", block->belong_to_file.file_type, block->belong_to_file.record_length, block->belong_to_file.block_num, block->belong_to_file.first_deletion_offset, block->belong_to_file.record_num);
     fwrite(temp_str, strlen(temp_str), 1, new_block_file);
-    //å†™å…¥å†…å®¹
+    //Ð´ÈëÄÚÈÝ
     fseek(new_block_file, BLOCK_SIZE * block->block_id + BLOCK_HEADER, SEEK_SET);
     fwrite(block->getBlockContent(), BLOCK_SIZE - BLOCK_HEADER, 1, new_block_file);
     fclose(new_block_file);
@@ -214,13 +177,9 @@ void bufferManager::LRUForPutBlock(struct LRUKey block_key, blockInfo *block)
         itor = block_pool.end(); itor--;
         while (itor != block_pool.begin() && !((*itor)->isPinned())) itor--;
         if (itor == block_pool.begin() && (*itor)->isPinned()) {
-            cout << "ERROR: No buffer is available!" << endl;
-            //MARK: é”™è¯¯å¤„ç†
+            throw string("ERROR: No buffer is available!");
+            //MARK: ´íÎó´¦Àí
         } else {
-//            if (itor->isDirty())
-//                writeBlockBackToDisk(*itor);
-//            block_map.erase(LRUKey(itor->belong_to_file.file_name, itor->block_id));
-//            block_pool.erase(itor);
             writeBackBlock(*itor);
             block_pool.push_front(block);
             block_map[block_key] = block_pool.begin();
@@ -233,9 +192,9 @@ void bufferManager::LRUForPutBlock(struct LRUKey block_key, blockInfo *block)
 
 blockInfo* bufferManager::getBlockMem(string file_name, int block_id)
 {
-    //åˆ¤æ–­æ˜¯å¦å­˜åœ¨
+    //ÅÐ¶ÏÊÇ·ñ´æÔÚ
     blockInfo* get_block = LRUForGetBlock(LRUKey(file_name, block_id));
-    //ä¸å­˜åœ¨åˆ™è¯»å…¥
+    //²»´æÔÚÔò¶ÁÈë
     if (!get_block) {
         blockInfo* block_content = readBlockIntoMemory(file_name, block_id);
         //LRUForPutBlock(LRUKey(file_name, block_id), block_content);
@@ -248,14 +207,14 @@ blockInfo* bufferManager::getBlockMem(string file_name, int block_id)
 void bufferManager::writeBackBlock(blockInfo* block)
 {
     if (block->isPinned()) {
-        cout << "ERROR: The block is still pinned!" << endl;
-        //MARK: é”™è¯¯å¤„ç†
+        throw string("ERROR: The block is still pinned!");
+        //MARK: ´íÎó´¦Àí
         return;
     }
     if (block->isDirty())
-        //å†™å›žç£ç›˜
+        //Ð´»Ø´ÅÅÌ
         writeBlockBackToDisk(block);
-    //æ¸…é™¤é˜Ÿåˆ—
+    //Çå³ý¶ÓÁÐ
     block_pool.erase(block_map[LRUKey(block->belong_to_file.file_name, block->block_id)]);
     block_map.erase(LRUKey(block->belong_to_file.file_name, block->block_id));
     delete block;

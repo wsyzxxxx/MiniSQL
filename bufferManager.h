@@ -1,25 +1,15 @@
-//
-//  bufferManager.h
-//  miniSQL
-//
-//  Created by è–›ä¼Ÿ on 2018/6/11.
-//  Copyright Â© 2018å¹´ Will. All rights reserved.
-//
 
 /*************************************************
- BufferManagerä½¿ç”¨æ–¹æ³•:
- 1.å­˜åœ¨ä¸€ä¸ªå…¨å±€çš„bufferManager* buffer_manager;åœ¨å„è‡ªçš„æ¨¡å—ä½¿ç”¨externå¼•ç”¨å³å¯
- 2.è¿›è¡Œæ–‡ä»¶æ“ä½œæ—¶ï¼Œå¿…é¡»å…ˆåˆ›å»ºæ–‡ä»¶ï¼Œè°ƒç”¨buffer_manager->createNewFileï¼Œæ–‡ä»¶åæ ¼å¼å¯å‚è€ƒdefinitions.h
- 3.åˆ›å»ºæ–‡ä»¶åï¼Œè°ƒç”¨getBlockMemè·å¾—æ–‡ä»¶å†…çš„blockï¼Œé»˜è®¤ä»block_idä¸º0å¼€å§‹ï¼Œç¬¬ä¸€ä¸ªä¸å¤Ÿå¯å†è·å–ç¬¬äºŒä¸ªï¼Œè¯·æŒ‰é¡ºåºä½¿ç”¨
- 4.è·å¾—blockåå³å¯å¯¹å½“å‰blockè¿›è¡Œæ“ä½œï¼Œæ“ä½œå‰ä½¿ç”¨setPin()ï¼Œå°†è¯¥blocké”å®š
- 5.ç„¶åä½¿ç”¨block->getBlockContent()å¯è·å–å½“å‰blockçš„char*çš„å­—ç¬¦æµå†…å®¹ï¼Œå¯è‡ªè¡Œè®¾è®¡ç¼–æ’å­˜å‚¨ã€‚è¿™ä¸ªå¤§å°ä¸ºBLOCK_SIZE-BLOCK_HEADER
- 6.å¦å¤–blockçš„belong_to_fileå­˜æ”¾äº†ä¸€äº›æ–‡ä»¶ä¿¡æ¯ï¼Œæ¯ä¸ªæ–‡ä»¶ä»¥block_idä¸º0çš„blockå­˜æ”¾ä¸ºå‡†
- 7.æ“ä½œå®Œblockåè®°å¾—setPin(false)å–æ¶ˆé”å®šï¼Œå¦‚æœæœ‰ä¿®æ”¹å†…å®¹åˆ™setDirty()å°†é¡µé¢æ ‡è®°ä¸ºå·²ç»ä¿®æ”¹
- 8.å¦‚æœéœ€è¦å¯ä»¥è°ƒç”¨buffer_managerçš„writeBackBlockå°†æŸä¸ªå—å†™å›åˆ°æ–‡ä»¶ã€‚ä¸è¿‡æœ€ç»ˆè¿™ä¸€æ­¥ä¸éœ€è¦æ‰‹åŠ¨å®Œæˆï¼Œbuffermanagerä¼šåœ¨ææ„çš„æ—¶å€™å°†å†…å­˜ä¸­æ‰€æœ‰å—ç›´æ¥å†™å›æ–‡ä»¶ã€‚æ‰€ä»¥è‡ªå·±æµ‹è¯•çš„æ—¶å€™æ³¨æ„æ‰‹åŠ¨å†™å›æˆ–è€…ç¡®ä¿buffer_managerå®Œæˆäº†ææ„å‡½æ•°å†é€€å‡ºç¨‹åºã€‚
- 9.å…·ä½“ä½¿ç”¨æ–¹å¼å¯ä»¥å‚è€ƒæˆ‘åœ¨Mainå‡½æ•°å†…å†™çš„å†…å®¹
+ BufferManagerÊ¹ÓÃ·½·¨:
+ 1.´æÔÚÒ»¸öÈ«¾ÖµÄbufferManager* buffer_manager;ÔÚ¸÷×ÔµÄÄ£¿éÊ¹ÓÃexternÒıÓÃ¼´¿É
+ 2.½øĞĞÎÄ¼ş²Ù×÷Ê±£¬±ØĞëÏÈ´´½¨ÎÄ¼ş£¬µ÷ÓÃbuffer_manager->createNewFile£¬ÎÄ¼şÃû¸ñÊ½¿É²Î¿¼definitions.h
+ 3.´´½¨ÎÄ¼şºó£¬µ÷ÓÃgetBlockMem»ñµÃÎÄ¼şÄÚµÄblock£¬Ä¬ÈÏ´Óblock_idÎª0¿ªÊ¼£¬µÚÒ»¸ö²»¹»¿ÉÔÙ»ñÈ¡µÚ¶ş¸ö£¬Çë°´Ë³ĞòÊ¹ÓÃ
+ 4.»ñµÃblockºó¼´¿É¶Ôµ±Ç°block½øĞĞ²Ù×÷£¬²Ù×÷Ç°Ê¹ÓÃsetPin()£¬½«¸ÃblockËø¶¨
+ 5.È»ºóÊ¹ÓÃblock->getBlockContent()¿É»ñÈ¡µ±Ç°blockµÄchar*µÄ×Ö·ûÁ÷ÄÚÈİ£¬¿É×ÔĞĞÉè¼Æ±àÅÅ´æ´¢¡£Õâ¸ö´óĞ¡ÎªBLOCK_SIZE-BLOCK_HEADER
+ 6.ÁíÍâblockµÄbelong_to_file´æ·ÅÁËÒ»Ğ©ÎÄ¼şĞÅÏ¢£¬Ã¿¸öÎÄ¼şÒÔblock_idÎª0µÄblock´æ·ÅÎª×¼
+ 7.²Ù×÷Íêblockºó¼ÇµÃsetPin(false)È¡ÏûËø¶¨£¬Èç¹ûÓĞĞŞ¸ÄÄÚÈİÔòsetDirty()½«Ò³Ãæ±ê¼ÇÎªÒÑ¾­ĞŞ¸Ä
+ 8.Èç¹ûĞèÒª¿ÉÒÔµ÷ÓÃbuffer_managerµÄwriteBackBlock½«Ä³¸ö¿éĞ´»Øµ½ÎÄ¼ş¡£²»¹ı×îÖÕÕâÒ»²½²»ĞèÒªÊÖ¶¯Íê³É£¬buffermanager»áÔÚÎö¹¹µÄÊ±ºò½«ÄÚ´æÖĞËùÓĞ¿éÖ±½ÓĞ´»ØÎÄ¼ş¡£ËùÒÔ×Ô¼º²âÊÔµÄÊ±ºò×¢ÒâÊÖ¶¯Ğ´»Ø»òÕßÈ·±£buffer_managerÍê³ÉÁËÎö¹¹º¯ÊıÔÙÍË³ö³ÌĞò¡£
 **************************************************/
-
-
 
 #ifndef _BUFFERMANAGER_H_
 #define _BUFFERMANAGER_H_
@@ -34,13 +24,13 @@
 using namespace std;
 
 struct fileInfo {
-    int file_type;               //æ–‡ä»¶ç±»å‹ï¼šcatalogæ–‡ä»¶file_type = 1, recordæ–‡ä»¶file_type = 2, indexæ–‡ä»¶file_type = 3;
-    string file_name;            //æ–‡ä»¶å
-    int record_length;           //æ–‡ä»¶ä¸­æ¯æ¡è®°å½•çš„é•¿åº¦
-    int block_num;               //æ–‡ä»¶ä¸­blockæ•°é‡
-    int first_deletion_offset;   //æ–‡ä»¶ä¸­ç¬¬ä¸€ä¸ªåˆ é™¤çš„è®°å½•çš„åç§»é‡
-    int record_num;              //æ–‡ä»¶ä¸­è®°å½•çš„æ•°é‡
-    //blockInfo* first_block;      //æŒ‡å‘æ–‡ä»¶èµ·å§‹blockçš„æŒ‡é’ˆ
+    int file_type;               //ÎÄ¼şÀàĞÍ£ºcatalogÎÄ¼şfile_type = 1, recordÎÄ¼şfile_type = 2, indexÎÄ¼şfile_type = 3;
+    string file_name;            //ÎÄ¼şÃû
+    int record_length;           //ÎÄ¼şÖĞÃ¿Ìõ¼ÇÂ¼µÄ³¤¶È
+    int block_num;               //ÎÄ¼şÖĞblockÊıÁ¿
+    int first_deletion_offset;   //ÎÄ¼şÖĞµÚÒ»¸öÉ¾³ıµÄ¼ÇÂ¼µÄÆ«ÒÆÁ¿
+    int record_num;              //ÎÄ¼şÖĞ¼ÇÂ¼µÄÊıÁ¿
+    //blockInfo* first_block;      //Ö¸ÏòÎÄ¼şÆğÊ¼blockµÄÖ¸Õë
     fileInfo() {};
     fileInfo(int t, string n, int l, int b, int o, int r):
         file_type(t),
@@ -75,43 +65,43 @@ struct LRUKey_CMP {
 
 class blockInfo {
 private:
-    bool is_dirty;              //æ˜¯å¦è¢«ä¿®æ”¹è¿‡
-    bool is_pinned;        //è¢«pinçš„æ¬¡æ•°(å¯èƒ½å­˜åœ¨å¤šä¸ªæ“ä½œpinåŒä¸€ä¸ªé¡µçš„æƒ…å†µ)
-    //int block_offset;         //blockçš„åç§»é‡
-    char block_mem [BLOCK_SIZE - BLOCK_HEADER];//blockå†…çš„å†…å®¹
+    bool is_dirty;              //ÊÇ·ñ±»ĞŞ¸Ä¹ı
+    bool is_pinned;        //±»pinµÄ´ÎÊı(¿ÉÄÜ´æÔÚ¶à¸ö²Ù×÷pinÍ¬Ò»¸öÒ³µÄÇé¿ö)
+    //int block_offset;         //blockµÄÆ«ÒÆÁ¿
+    char block_mem [BLOCK_SIZE - BLOCK_HEADER];//blockÄÚµÄÄÚÈİ
 
 public:
-    int block_id;               //blockçš„idï¼Œåœ¨fileä¸­çš„idï¼Œä»0å¼€å§‹ï¼Œ0ï¼Œ1ï¼Œ2ï¼Œ3...
-    fileInfo belong_to_file;    //å±äºå“ªä¸ªfile
+    int block_id;               //blockµÄid£¬ÔÚfileÖĞµÄid£¬´Ó0¿ªÊ¼£¬0£¬1£¬2£¬3...
+    fileInfo belong_to_file;    //ÊôÓÚÄÄ¸öfile
     
-    blockInfo(char* block_content, fileInfo file_info, int block_id);    //æ„é€ å‡½æ•°
-    ~blockInfo();                                          //ææ„å‡½æ•°
-    void setDirty(bool dirty_byte = true);                 //è®¾ç½®orå–æ¶ˆæŸblockçš„dirtyçŠ¶æ€
-    bool isDirty();                                        //è·å–blockçš„dirtyçŠ¶æ€
-    void setPin(bool pinned = true);                       //å¢åŠ orå‡å°‘æŸblockçš„pinæ¬¡æ•°
-    bool isPinned();                                       //è·å–æŸblockçš„pinçŠ¶æ€
-    char* getBlockContent();                               //è·å–blockçš„å†…å­˜å†…å®¹
+    blockInfo(char* block_content, fileInfo file_info, int block_id);    //¹¹Ôìº¯Êı
+    ~blockInfo();                                          //Îö¹¹º¯Êı
+    void setDirty(bool dirty_byte = true);                 //ÉèÖÃorÈ¡ÏûÄ³blockµÄdirty×´Ì¬
+    bool isDirty();                                        //»ñÈ¡blockµÄdirty×´Ì¬
+    void setPin(bool pinned = true);                       //Ôö¼Óor¼õÉÙÄ³blockµÄpin´ÎÊı
+    bool isPinned();                                       //»ñÈ¡Ä³blockµÄpin×´Ì¬
+    char* getBlockContent();                               //»ñÈ¡blockµÄÄÚ´æÄÚÈİ
 };
 
 class bufferManager {
 private:
-    list<blockInfo*> block_pool;   //blockæ± ï¼Œå­˜å‚¨æ‰€æœ‰å†…å­˜ä¸­çš„block
-    unordered_map<LRUKey, list<blockInfo*>::iterator, LRUKey_HASH, LRUKey_CMP> block_map; // ç”¨äºLRUè®¡ç®—çš„mapï¼Œé™ä½æ—¶é—´å¤æ‚åº¦
+    list<blockInfo*> block_pool;   //block³Ø£¬´æ´¢ËùÓĞÄÚ´æÖĞµÄblock
+    unordered_map<LRUKey, list<blockInfo*>::iterator, LRUKey_HASH, LRUKey_CMP> block_map; // ÓÃÓÚLRU¼ÆËãµÄmap£¬½µµÍÊ±¼ä¸´ÔÓ¶È
     
-    blockInfo* readBlockIntoMemory(string file_name, int block_id);//è¯»å–ä¸€ä¸ªBlockåˆ°å†…å­˜ä¸­
-    void writeBlockBackToDisk(blockInfo *block);                //å°†å†…å­˜ä¸­çš„ä¸€ä¸ªå—å†™åˆ°ç£ç›˜ä¸Š
-    void initFileBlock(string file_name, int block_id, int file_type, int record_length);         //æ–°åˆå§‹åŒ–ä¸€ä¸ªæ–‡ä»¶çš„block
-    //blockInfo openFile(string file_name);                     //æš‚æ—¶ä¸ç”¨
+    blockInfo* readBlockIntoMemory(string file_name, int block_id);//¶ÁÈ¡Ò»¸öBlockµ½ÄÚ´æÖĞ
+    void writeBlockBackToDisk(blockInfo *block);                //½«ÄÚ´æÖĞµÄÒ»¸ö¿éĞ´µ½´ÅÅÌÉÏ
+    void initFileBlock(string file_name, int block_id, int file_type, int record_length);         //ĞÂ³õÊ¼»¯Ò»¸öÎÄ¼şµÄblock
+    //blockInfo openFile(string file_name);                     //ÔİÊ±²»ÓÃ
     //void closeFile(string file_name);
-    blockInfo* LRUForGetBlock(LRUKey block);                    //LRUçš„blockæ›¿æ¢
-    void LRUForPutBlock(LRUKey block_key, blockInfo *block);    //LRUçš„blockæ›¿æ¢
+    blockInfo* LRUForGetBlock(LRUKey block);                    //LRUµÄblockÌæ»»
+    void LRUForPutBlock(LRUKey block_key, blockInfo *block);    //LRUµÄblockÌæ»»
     
 public:
-    bufferManager();                //æ„é€ å‡½æ•°
-    ~bufferManager();               //ææ„å‡½æ•°
-    blockInfo* getBlockMem(string file_name, int block_id);     //è·å–æŸblockåœ¨å†…å­˜ä¸­çš„å¥æŸ„
-    void createNewFile(string file_name, int file_type, int record_length);        //åˆ›å»ºä¸€ä¸ªæ–°çš„æ–‡ä»¶ï¼Œæ–‡ä»¶ç±»å‹0:catalog, 1:record, 2:index
-    void writeBackBlock(blockInfo *block);                      //å°†blockå†™å›ç£ç›˜ï¼Œä¸€èˆ¬ä¸éœ€è¦æ‰‹åŠ¨å†™å›
+    bufferManager();                //¹¹Ôìº¯Êı
+    ~bufferManager();               //Îö¹¹º¯Êı
+    blockInfo* getBlockMem(string file_name, int block_id);     //»ñÈ¡Ä³blockÔÚÄÚ´æÖĞµÄ¾ä±ú
+    void createNewFile(string file_name, int file_type, int record_length);        //´´½¨Ò»¸öĞÂµÄÎÄ¼ş£¬ÎÄ¼şÀàĞÍ0:catalog, 1:record, 2:index
+    void writeBackBlock(blockInfo *block);                      //½«blockĞ´»Ø´ÅÅÌ£¬Ò»°ã²»ĞèÒªÊÖ¶¯Ğ´»Ø
     
 };
 
